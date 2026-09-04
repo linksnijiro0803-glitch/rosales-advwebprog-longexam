@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../../components/Button";
 import { useAuth } from "../../hooks/useAuth";
 
-const inputClasses = "mt-1 w-full rounded-xl border border-zinc-300 bg-zinc-100 px-3 py-2 text-sm text-zinc-900";
+const inputClasses = "field";
 
 const emptyForm = (fields) =>
   fields.reduce((form, field) => ({ ...form, [field.name]: field.defaultValue ?? "" }), {});
@@ -138,11 +138,12 @@ const AdminResourcePage = ({ title, fields, service, getItems, renderItem, optio
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-zinc-900">{title}</h1>
-      <form className="mt-5 grid gap-4 rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4 lg:grid-cols-2" onSubmit={handleSubmit}>
-        <h2 className="lg:col-span-2 text-xl font-semibold text-zinc-900">{formTitle}</h2>
+      <p className="eyebrow">Manage records</p>
+      <h1 className="mt-2 text-3xl font-black text-slate-950 sm:text-4xl">{title}</h1>
+      <form className="panel mt-6 grid gap-5 p-5 sm:p-6 lg:grid-cols-2" onSubmit={handleSubmit}>
+        <h2 className="text-xl font-extrabold text-blue-950 lg:col-span-2">{formTitle}</h2>
         {visibleFields.map((field) => (
-          <label key={field.name} className={field.type === "textarea" ? "lg:col-span-2 text-sm font-medium text-zinc-700" : "text-sm font-medium text-zinc-700"}>
+          <label key={field.name} className={field.type === "textarea" ? "text-sm font-bold text-slate-700 lg:col-span-2" : "text-sm font-bold text-slate-700"}>
             {field.label}
             {field.type === "textarea" ? (
               <textarea name={field.name} value={form[field.name] || ""} onChange={handleChange} className={inputClasses} rows="4" required={!field.optional && !(editingId && field.omitWhenEmpty)} />
@@ -154,28 +155,28 @@ const AdminResourcePage = ({ title, fields, service, getItems, renderItem, optio
                 ))}
               </select>
             ) : field.type === "boolean" ? (
-              <input name={field.name} type="checkbox" checked={Boolean(form[field.name])} onChange={handleChange} className="ml-3 h-4 w-4 accent-zinc-900" />
+              <input name={field.name} type="checkbox" checked={Boolean(form[field.name])} onChange={handleChange} className="ml-3 h-5 w-5 accent-blue-950" />
             ) : (
               <input name={field.name} type={field.type || "text"} value={form[field.name] || ""} onChange={handleChange} className={inputClasses} required={!field.optional && !(editingId && field.omitWhenEmpty)} />
             )}
           </label>
         ))}
-        {error && <p className="lg:col-span-2 text-sm text-red-700">{error}</p>}
-        {success && <p className="lg:col-span-2 text-sm text-emerald-700">{success}</p>}
-        <div className="flex gap-3 lg:col-span-2">
+        {error && <p className="alert-error lg:col-span-2" role="alert">{error}</p>}
+        {success && <p className="alert-success lg:col-span-2" role="status">{success}</p>}
+        <div className="flex flex-wrap gap-3 lg:col-span-2">
           <Button type="submit" variant="primary" disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
           {editingId && <Button type="button" onClick={reset} disabled={saving}>Cancel</Button>}
         </div>
       </form>
       <div className="mt-6 space-y-3">
-        {loading && <p className="text-sm text-zinc-600">Loading...</p>}
-        {!loading && items.length === 0 && <p className="text-sm text-zinc-600">No records found.</p>}
+        {loading && <div className="state-panel" role="status">Loading records…</div>}
+        {!loading && !error && items.length === 0 && <div className="state-panel">No records found.</div>}
         {items.map((item) => (
-          <article key={item._id} className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="text-sm text-zinc-700">{renderItem(item)}</div>
-            <div className="mt-4 flex gap-2">
+          <article key={item._id} className="panel p-5">
+            <div className="break-words text-sm leading-6 text-slate-600">{renderItem(item)}</div>
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
               <Button type="button" onClick={() => editItem(item)} disabled={saving}>Edit</Button>
-              <Button type="button" onClick={() => deleteItem(item)} disabled={saving}>Delete</Button>
+              <Button type="button" variant="danger" onClick={() => deleteItem(item)} disabled={saving}>Delete</Button>
             </div>
           </article>
         ))}

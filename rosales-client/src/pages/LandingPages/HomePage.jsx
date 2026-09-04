@@ -1,124 +1,89 @@
+import { useEffect, useState } from 'react';
 import Button from '../../components/Button';
+import ProductList from '../../components/ProductList';
 import banner from '../../assets/img/nu_bulldogex_banner.jpg';
+import { getProducts } from '../../services/productService';
+import { useAuth } from '../../hooks/useAuth';
 
 const HomePage = () => {
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <section className="relative min-h-[28rem] overflow-hidden border-y-2 border-zinc-900 bg-zinc-900 px-4 py-10 sm:px-6 lg:px-8">
-                <img
-                    src={banner}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-zinc-900/45" />
+  const { isAuthenticated } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-                <div className="relative z-10 flex min-h-[22rem] items-start justify-end text-right sm:min-h-[24rem]">
-                    <div className="max-w-xl">
-                        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-200">
-                            Campus Marketplace
-                        </p>
-                        <h1 className="text-3xl font-bold leading-tight text-zinc-50 sm:text-4xl">
-                            Welcome to BulldogEx Shop
-                        </h1>
-                        <p className="mt-4 text-sm leading-7 text-zinc-100 sm:text-base">
-                            Explore campus uniforms, student essentials, and school merch in one
-                            quick storefront.
-                        </p>
-                        <div className="mt-6 flex flex-wrap justify-end gap-3">
-                            <Button to="/products">
-                                Shop Now
-                            </Button>
-                            <Button to="/about" variant="primary">
-                                About Store
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  useEffect(() => {
+    let active = true;
 
-            <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-                <div className="mb-6">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
-                        Store Overview
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-zinc-900">Quick shopping blocks</h2>
-                </div>
+    getProducts({ limit: 4 })
+      .then((response) => {
+        if (active) setProducts(Array.isArray(response?.data) ? response.data.slice(0, 4) : []);
+      })
+      .catch((apiError) => {
+        if (active) setError(apiError.message || 'Unable to load featured products.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-5">
-                        <p className="text-2xl font-bold text-zinc-900">08</p>
-                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-                            Products
-                        </p>
-                    </div>
-                    <div className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-5">
-                        <p className="text-2xl font-bold text-zinc-900">06</p>
-                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-                            Categories
-                        </p>
-                    </div>
-                    <div className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-5">
-                        <p className="text-2xl font-bold text-zinc-900">24</p>
-                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-                            Orders
-                        </p>
-                    </div>
-                    <div className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-5">
-                        <p className="text-2xl font-bold text-zinc-900">03</p>
-                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-                            Pickup Slots
-                        </p>
-                    </div>
-                </div>
-            </section>
+    return () => { active = false; };
+  }, []);
 
-            <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-                <div className="mb-6">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
-                        Shop Sections
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-zinc-900">Simple store cards</h2>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                    <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-                        <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200">
-                            <div className="h-12 w-12 border-2 border-zinc-300 bg-zinc-100" />
-                        </div>
-                        <h3 className="mt-4 text-lg font-semibold text-zinc-900">Daily Essentials</h3>
-                        <p className="mt-3 text-sm leading-6 text-zinc-600">
-                            Bags, tumblers, lanyards, and items used every school day.
-                        </p>
-                        <Button to="/products" className="mt-4" variant="primary">View Products</Button>
-                    </article>
-
-                    <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-                        <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200">
-                            <div className="h-12 w-12 border-2 border-zinc-300 bg-zinc-100" />
-                        </div>
-                        <h3 className="mt-4 text-lg font-semibold text-zinc-900">Study Supplies</h3>
-                        <p className="mt-3 text-sm leading-6 text-zinc-600">
-                            Notes, desk tools, and study kits for class and review weeks.
-                        </p>
-                        <Button to="/products" className="mt-4" variant="primary">Shop Supplies</Button>
-                    </article>
-
-                    <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-                        <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200">
-                            <div className="h-12 w-12 border-2 border-zinc-300 bg-zinc-100" />
-                        </div>
-                        <h3 className="mt-4 text-lg font-semibold text-zinc-900">Campus Apparel</h3>
-                        <p className="mt-3 text-sm leading-6 text-zinc-600">
-                            Comfortable pieces for class days, commute days, and weekends.
-                        </p>
-                        <Button to="/products" className="mt-4" variant="primary">
-                            View Apparel
-                        </Button>
-                    </article>
-                </div>
-            </section>
+  return (
+    <div>
+      <section className="relative isolate overflow-hidden bg-blue-950 text-white">
+        <img src={banner} alt="Bulldogs campus marketplace" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-950 via-blue-950/90 to-blue-950/45" />
+        <div className="page-shell flex min-h-[34rem] items-center py-16 sm:min-h-[40rem]">
+          <div className="max-w-3xl">
+            <p className="eyebrow !text-amber-300">The campus marketplace</p>
+            <h1 className="mt-4 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+              Buy, Sell, and Exchange Within the Bulldogs Community
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-blue-100 sm:text-lg">
+              Discover school essentials, useful finds, and community listings in one trusted place built for Bulldogs.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Button to="/products" className="border-amber-400 bg-amber-400 text-blue-950 hover:border-amber-300 hover:bg-amber-300">Browse Products</Button>
+              {!isAuthenticated && <Button to="/auth/signup" className="border-white/50 bg-white/10 text-white hover:border-white hover:text-white">Create Account</Button>}
+            </div>
+          </div>
         </div>
-    );
+      </section>
+
+      <section className="page-shell page-section">
+        <div className="grid gap-5 md:grid-cols-3">
+          {[
+            ['Community-first', 'Browse listings created for the Bulldogs community.'],
+            ['Clear product details', 'See price, condition, availability, and seller information at a glance.'],
+            ['Simple ordering', 'Move from discovery to cart and checkout without the clutter.'],
+          ].map(([title, copy]) => (
+            <article key={title} className="panel p-6">
+              <div className="mb-4 h-1.5 w-12 rounded-full bg-amber-400" />
+              <h2 className="text-lg font-extrabold text-blue-950">{title}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-slate-200 bg-white">
+        <div className="page-shell page-section">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="eyebrow">Fresh listings</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Featured products</h2>
+              <p className="mt-3 text-slate-600">Real products currently available in the marketplace.</p>
+            </div>
+            <Button to="/products">View all products</Button>
+          </div>
+          {loading && <div className="state-panel" role="status">Loading featured products…</div>}
+          {!loading && error && <div className="alert-error" role="alert">{error}</div>}
+          {!loading && !error && products.length === 0 && <div className="state-panel">No products are available yet.</div>}
+          {!loading && !error && products.length > 0 && <ProductList products={products} />}
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default HomePage;

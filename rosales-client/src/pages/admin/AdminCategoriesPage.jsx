@@ -7,15 +7,24 @@ const fields = [
   { name: "isActive", label: "Active", type: "boolean", defaultValue: true, optional: true },
 ];
 
+const adminCategoryService = {
+  list: categoryService.getCategories,
+  create: categoryService.createCategory,
+  update: categoryService.updateCategory,
+  delete: categoryService.deleteCategory,
+};
+
+const getCategories = (response) => response?.data || [];
+
 const AdminCategoriesPage = () => (
   <AdminResourcePage
     title="Categories"
     fields={fields}
-    service={{ list: () => categoryService.getCategories(), create: categoryService.createCategory, update: categoryService.updateCategory, delete: categoryService.deleteCategory }}
-    getItems={(response) => response?.data || []}
+    service={adminCategoryService}
+    getItems={getCategories}
     renderItem={(category) => (
       <>
-        <p className="font-semibold text-zinc-900">{category.categoryName}</p>
+        <p className="font-bold text-slate-950">{category.categoryName}</p>
         <p>{category.description || "No description"}</p>
         <p>{category.isActive ? "Active" : "Inactive"}</p>
       </>

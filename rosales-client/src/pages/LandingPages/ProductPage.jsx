@@ -192,27 +192,19 @@ function ProductPage() {
 
   if (loading) {
     return (
-      <div className="flex w-full flex-col gap-6">
-        <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          <div className="mx-auto max-w-3xl">
-            <h1 className="text-3xl font-bold text-zinc-900">Loading product...</h1>
-          </div>
-        </section>
-      </div>
+      <div className="page-shell page-section"><div className="state-panel" role="status">Loading product…</div></div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="flex w-full flex-col gap-6">
-        <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          <div className="mx-auto max-w-3xl">
-            <h1 className="text-3xl font-bold text-zinc-900">Product not found</h1>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
+      <div className="page-shell page-section">
+        <section className="panel mx-auto max-w-2xl p-8 text-center">
+            <h1 className="text-3xl font-black text-slate-950">Product not found</h1>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
               {error || 'Unable to load product.'}
             </p>
             <Button to="/products" className="mt-6">Back to Products</Button>
-          </div>
         </section>
       </div>
     );
@@ -221,78 +213,61 @@ function ProductPage() {
   const image = getProductImage(product);
   const supplierName = getSupplierName(product.supplier);
 
-  return (
-    <div className="flex w-full flex-col gap-6">
-      
-      <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="max-w-3xl">
-          <div className="mb-4">
-            <Button to="/products">Back to Products</Button>
-          </div>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
-            {getCategoryName(product.category)}
-          </p>
-          <h1 className="text-3xl font-bold leading-tight text-zinc-900 sm:text-4xl">
-            {product.productName}
-          </h1>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-zinc-600">
-            <span className="font-bold text-zinc-900">
-              {currencyFormatter.format(Number(product.price) || 0)}
-            </span>
-            <span>Stock: {product.stock ?? 0}</span>
-            <span>Status: {product.status || 'available'}</span>
-            <span>Condition: {product.condition || 'good'}</span>
-          </div>
-          {supplierName && (
-            <p className="mt-3 text-sm text-zinc-600">Supplier: {supplierName}</p>
-          )}
-        </div>
-      </section>
+  const inStock = Number(product.stock) > 0 && product.status !== 'sold' && product.status !== 'inactive';
 
-      <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-8 flex aspect-4/3 items-center justify-center overflow-hidden rounded-[1.25rem] border-2 border-zinc-900 bg-zinc-200">
+  return (
+    <div className="page-shell page-section">
+      <Button to="/products" className="mb-6">← Back to Products</Button>
+
+      <section className="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <div className="panel sticky top-24 flex aspect-4/3 items-center justify-center overflow-hidden bg-slate-100">
             <img
               src={image || logo}
               alt={product.productName || 'Product'}
-              className={image ? 'h-full w-full object-cover' : 'h-24 w-24 rounded-full border-2 border-zinc-900 bg-zinc-50 object-contain'}
+              className={image ? 'h-full w-full object-cover' : 'h-28 w-28 rounded-full bg-white object-contain p-2 shadow-sm'}
             />
-          </div>
+        </div>
 
-          <div className="prose prose-sm max-w-none space-y-4 text-zinc-700">
-            <p className="whitespace-pre-wrap text-base leading-7 text-zinc-700">
-              {product.description || 'No description available.'}
-            </p>
+        <div>
+          <p className="eyebrow">{getCategoryName(product.category)}</p>
+          <h1 className="page-title mt-3">{product.productName}</h1>
+          <p className="mt-5 text-3xl font-black text-blue-950">{currencyFormatter.format(Number(product.price) || 0)}</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${inStock ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>{inStock ? 'Available' : 'Unavailable'}</span>
+            <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold capitalize text-amber-900">{product.condition || 'good'} condition</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">{product.stock ?? 0} in stock</span>
           </div>
-
-          <div className="mt-8 border-t-2 border-zinc-900 pt-6">
-            <Button variant="primary" className="mr-3" onClick={handleAddToCart} disabled={submitting || Number(product.stock) <= 0}>
-              {submitting ? 'Working...' : 'Add to Cart'}
-            </Button>
-            <Button to="/products">Back to Products</Button>
-            {actionMessage && <p className="mt-4 text-sm text-emerald-700">{actionMessage}</p>}
-            {actionError && <p className="mt-4 text-sm text-red-700">{actionError}</p>}
+          <div className="mt-7 border-y border-slate-200 py-6">
+            <h2 className="font-extrabold text-slate-950">About this item</h2>
+            <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-600">{product.description || 'No description available.'}</p>
+            {supplierName && <p className="mt-4 text-sm text-slate-500"><span className="font-bold text-slate-700">Supplier:</span> {supplierName}</p>}
           </div>
+          <Button variant="primary" className="mt-6 w-full sm:w-auto" onClick={handleAddToCart} disabled={submitting || !inStock}>
+            {submitting ? 'Working…' : inStock ? 'Add to Cart' : 'Unavailable'}
+          </Button>
+          {actionMessage && <p className="alert-success mt-4" role="status">{actionMessage}</p>}
+          {actionError && <p className="alert-error mt-4" role="alert">{actionError}</p>}
         </div>
       </section>
-      <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="text-2xl font-semibold text-zinc-900">Reviews</h2>
-          {reviews.length === 0 && <p className="mt-4 text-sm text-zinc-600">No reviews yet.</p>}
+
+      <section className="mt-14 border-t border-slate-200 pt-10">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-2xl font-black text-slate-950">Reviews <span className="text-slate-400">({reviews.length})</span></h2>
+          {reviews.length === 0 && <p className="state-panel mt-5">No reviews yet. Be the first to share your experience.</p>}
           <div className="mt-5 space-y-4">
             {reviews.map((review) => {
               const ownerId = review.user?._id || review.user;
               const canManage = user?.role === 'Admin' || ownerId === user?.id;
 
               return (
-                <article key={review._id} className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-                  <p className="font-semibold text-zinc-900">{review.rating}/5</p>
-                  <p className="mt-2 text-sm leading-6 text-zinc-600">{review.comment}</p>
-                  <p className="mt-2 text-xs text-zinc-500">{review.user?.name || review.user?.email || 'Reviewer'}</p>
+                <article key={review._id} className="panel p-5">
+                  <p className="font-bold text-amber-700" aria-label={`${review.rating} out of 5 stars`}>{'★'.repeat(review.rating)}<span className="text-slate-300">{'★'.repeat(5 - review.rating)}</span></p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{review.comment}</p>
+                  <p className="mt-2 text-xs font-semibold text-slate-500">{review.user?.name || review.user?.email || 'Reviewer'}</p>
                   {canManage && (
                     <div className="mt-3 flex gap-2">
                       <Button type="button" onClick={() => startEditReview(review)} disabled={submitting}>Edit</Button>
-                      <Button type="button" onClick={() => handleDeleteReview(review._id)} disabled={submitting}>Delete</Button>
+                      <Button type="button" variant="danger" onClick={() => handleDeleteReview(review._id)} disabled={submitting}>Delete</Button>
                     </div>
                   )}
                 </article>
@@ -300,18 +275,21 @@ function ProductPage() {
             })}
           </div>
           {isAuthenticated ? (
-            <form className="mt-6 space-y-4 border-t-2 border-zinc-900 pt-5" onSubmit={handleReviewSubmit}>
-              <select className="w-32 rounded-xl border border-zinc-300 bg-zinc-100 px-4 py-3 text-sm" value={reviewForm.rating} onChange={(event) => setReviewForm((current) => ({ ...current, rating: event.target.value }))}>
+            <form className="panel mt-8 space-y-4 p-5 sm:p-6" onSubmit={handleReviewSubmit}>
+              <h3 className="text-lg font-extrabold text-slate-950">{editingReviewId ? 'Edit your review' : 'Write a review'}</h3>
+              <label htmlFor="review-rating" className="block text-sm font-bold text-slate-700">Rating</label>
+              <select id="review-rating" className="field !mt-0 w-full sm:w-40" value={reviewForm.rating} onChange={(event) => setReviewForm((current) => ({ ...current, rating: event.target.value }))}>
                 {[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating}</option>)}
               </select>
-              <textarea className="block w-full rounded-xl border border-zinc-300 bg-zinc-100 px-4 py-3 text-sm" rows="4" value={reviewForm.comment} onChange={(event) => setReviewForm((current) => ({ ...current, comment: event.target.value }))} placeholder="Write your review" required />
+              <label htmlFor="review-comment" className="block text-sm font-bold text-slate-700">Comment</label>
+              <textarea id="review-comment" className="field !mt-0 block" rows="4" value={reviewForm.comment} onChange={(event) => setReviewForm((current) => ({ ...current, comment: event.target.value }))} placeholder="Share your experience" required />
               <div className="flex gap-3">
                 <Button type="submit" variant="primary" disabled={submitting}>{editingReviewId ? 'Update Review' : 'Post Review'}</Button>
                 {editingReviewId && <Button type="button" onClick={resetReviewForm}>Cancel</Button>}
               </div>
             </form>
           ) : (
-            <p className="mt-6 text-sm text-zinc-600">Log in to write a review.</p>
+            <p className="mt-6 text-sm text-slate-600">Log in to write a review.</p>
           )}
         </div>
       </section>

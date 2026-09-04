@@ -9,15 +9,24 @@ const fields = [
   { name: "isActive", label: "Active", type: "boolean", defaultValue: true, optional: true },
 ];
 
+const adminUserService = {
+  list: userService.getUsers,
+  create: userService.createUser,
+  update: userService.updateUser,
+  delete: userService.deleteUser,
+};
+
+const getUsers = (response) => response?.users || [];
+
 const AdminUsersPage = () => (
   <AdminResourcePage
     title="Users"
     fields={fields}
-    service={{ list: userService.getUsers, create: userService.createUser, update: userService.updateUser, delete: userService.deleteUser }}
-    getItems={(response) => response?.users || []}
+    service={adminUserService}
+    getItems={getUsers}
     renderItem={(user) => (
       <>
-        <p className="font-semibold text-zinc-900">{user.name}</p>
+        <p className="font-bold text-slate-950">{user.name}</p>
         <p>{user.email}</p>
         <p>{user.role} | {user.isActive ? "Active" : "Inactive"}</p>
       </>

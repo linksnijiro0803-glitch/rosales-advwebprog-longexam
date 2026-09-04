@@ -10,15 +10,24 @@ const fields = [
   { name: "isActive", label: "Active", type: "boolean", defaultValue: true, optional: true },
 ];
 
+const adminSupplierService = {
+  list: supplierService.getSuppliers,
+  create: supplierService.createSupplier,
+  update: supplierService.updateSupplier,
+  delete: supplierService.deleteSupplier,
+};
+
+const getSuppliers = (response) => response?.data || [];
+
 const AdminSuppliersPage = () => (
   <AdminResourcePage
     title="Suppliers"
     fields={fields}
-    service={{ list: () => supplierService.getSuppliers(), create: supplierService.createSupplier, update: supplierService.updateSupplier, delete: supplierService.deleteSupplier }}
-    getItems={(response) => response?.data || []}
+    service={adminSupplierService}
+    getItems={getSuppliers}
     renderItem={(supplier) => (
       <>
-        <p className="font-semibold text-zinc-900">{supplier.supplierName}</p>
+        <p className="font-bold text-slate-950">{supplier.supplierName}</p>
         <p>{supplier.contactPerson || "No contact person"}</p>
         <p>{supplier.email || "No email"} | {supplier.contactNumber || "No number"}</p>
       </>

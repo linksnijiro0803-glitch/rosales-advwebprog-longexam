@@ -87,20 +87,23 @@ const updateUser = async (req, res) => {
       });
     }
 
-    if (!isAdmin && req.body.role) {
-      return res.status(HttpStatus.FORBIDDEN).json({
-        message: "Access denied",
-      });
-    }
+    const updates = isAdmin
+      ? { ...req.body }
+      : ["name", "email"].reduce((allowed, field) => {
+          if (req.body[field] !== undefined) {
+            allowed[field] = req.body[field];
+          }
+          return allowed;
+        }, {});
 
     // Check if the password is being updated
-    if (req.body.password) {
+    if (updates.password) {
       // Hash the new password
-      req.body.password = await bcrypt.hash(req.body.password, 10);
+      updates.password = await bcrypt.hash(updates.password, 10);
     }
 
     // Update the user with the new data
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const user = await User.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     }).select("-password");

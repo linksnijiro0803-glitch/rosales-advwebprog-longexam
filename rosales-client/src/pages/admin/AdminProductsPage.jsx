@@ -29,9 +29,16 @@ const optionLoaders = {
 
 const getProducts = (response) => response?.data || [];
 
+const adminProductService = {
+  list: () => productService.getProducts({ limit: 100 }),
+  create: productService.createProduct,
+  update: productService.updateProduct,
+  delete: productService.deleteProduct,
+};
+
 const renderProduct = (product) => (
   <>
-    <p className="font-semibold text-zinc-900">{product.productName}</p>
+    <p className="font-bold text-slate-950">{product.productName}</p>
     <p>{formatCurrency(product.price)} | Stock: {product.stock}</p>
     <p>{getCategoryName(product.category)} {getSupplierName(product.supplier) ? `| ${getSupplierName(product.supplier)}` : ""}</p>
     <p>{product.condition} | {product.status}</p>
@@ -42,7 +49,7 @@ const AdminProductsPage = () => (
   <AdminResourcePage
     title="Products"
     fields={fields}
-    service={{ list: () => productService.getProducts({ limit: 100 }), create: productService.createProduct, update: productService.updateProduct, delete: productService.deleteProduct }}
+    service={adminProductService}
     getItems={getProducts}
     renderItem={renderProduct}
     optionLoaders={optionLoaders}

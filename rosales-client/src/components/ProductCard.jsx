@@ -23,7 +23,7 @@ const getCategoryName = (category) => {
 
 const getProductImage = (product) => product.images?.find(Boolean);
 
-const ProductCard = ({ product, index }) => {
+const ProductCard = ({ product }) => {
   const { user, token, isAuthenticated } = useAuth();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -64,36 +64,38 @@ const ProductCard = ({ product, index }) => {
     }
   };
 
+  const inStock = Number(product.stock) > 0 && product.status !== 'sold' && product.status !== 'inactive';
+
   return (
-    <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-      <div className="flex aspect-4/3 items-center justify-center overflow-hidden rounded-[1.25rem] bg-zinc-200">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-950/10">
+      <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden bg-slate-100">
         <img
           src={image || logo}
           alt={product.productName || 'Product'}
-          className={image ? 'h-full w-full object-cover' : 'h-16 w-16 rounded-full border-2 border-zinc-900 bg-zinc-50 object-contain'}
+          className={image ? 'h-full w-full object-cover transition duration-300 group-hover:scale-105' : 'h-20 w-20 rounded-full bg-white object-contain p-1 shadow-sm'}
         />
+        <span className={`absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-bold ${inStock ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
+          {inStock ? 'Available' : 'Unavailable'}
+        </span>
       </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-        {getCategoryName(product.category)} {String(index + 1).padStart(2, '0')}
-      </p>
-      <h3 className="mt-2 text-lg font-semibold text-zinc-900">{product.productName}</h3>
-      <p className="mt-2 text-base font-bold text-zinc-900">
-        {currencyFormatter.format(Number(product.price) || 0)}
-      </p>
-      <p className="mt-1 text-sm text-zinc-500">
-        Stock: {product.stock ?? 0} | {product.status || 'available'}
-      </p>
-      <p className="mt-3 text-sm leading-6 text-zinc-600">
-        {description.length > 120 ? `${description.substring(0, 120)}...` : description}
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button to={`/products/${productId}`}>View Product</Button>
-        <Button type="button" variant="primary" onClick={handleAddToCart} disabled={saving || Number(product.stock) <= 0}>
-          {saving ? 'Adding...' : 'Add'}
-        </Button>
+      <div className="flex flex-1 flex-col p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-700">{getCategoryName(product.category)}</p>
+        <h3 className="mt-2 text-lg font-extrabold leading-snug text-blue-950">{product.productName}</h3>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <p className="text-xl font-black text-slate-950">{currencyFormatter.format(Number(product.price) || 0)}</p>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-slate-600">{product.condition || 'good'}</span>
+        </div>
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{description}</p>
+        <p className="mt-3 text-xs font-medium text-slate-500">{product.stock ?? 0} in stock</p>
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
+          <Button to={`/products/${productId}`} className="px-3">View</Button>
+          <Button type="button" variant="primary" className="px-3" onClick={handleAddToCart} disabled={saving || !inStock}>
+            {saving ? 'Adding…' : 'Add to cart'}
+          </Button>
+        </div>
+        {message && <p className="mt-3 text-sm font-medium text-emerald-700" role="status">{message}</p>}
+        {error && <p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
       </div>
-      {message && <p className="mt-3 text-sm text-emerald-700">{message}</p>}
-      {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
     </article>
   );
 };
